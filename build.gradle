@@ -3,7 +3,7 @@ plugins {
     id 'antlr'
 }
 
-group = 'com.levelrin.plainen'
+group = 'com.levelrin.chromescript'
 version = '0.0.1'
 
 repositories {

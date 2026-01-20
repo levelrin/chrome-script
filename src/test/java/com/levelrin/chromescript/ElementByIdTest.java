@@ -1,4 +1,4 @@
-package com.levelrin.plainen;
+package com.levelrin.chromescript;
 
 import com.levelrin.antlr.generated.MainGrammarLexer;
 import com.levelrin.antlr.generated.MainGrammarParser;
@@ -10,11 +10,11 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-final class PrintTest {
+final class ElementByIdTest {
 
     @Test
-    void print() {
-        final String code = "Print `Yoi Yoi` on the console.";
+    void elementById() {
+        final String code = "The button is the element with the ID `btn`.";
         final CharStream charStream = CharStreams.fromString(code);
         final MainGrammarLexer lexer = new MainGrammarLexer(charStream);
         final CommonTokenStream tokens = new CommonTokenStream(lexer);
@@ -23,7 +23,7 @@ final class PrintTest {
         final StringBuilder output = new StringBuilder();
         final MainGrammarListener listener = new MainGrammarListener(output);
         ParseTreeWalker.DEFAULT.walk(listener, tree);
-        Assertions.assertEquals("console.log(`Yoi Yoi`);", output.toString());
+        Assertions.assertEquals("const button = document.getElementById(`btn`);", output.toString());
     }
 
 }

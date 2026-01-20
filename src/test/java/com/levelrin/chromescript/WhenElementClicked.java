@@ -1,4 +1,4 @@
-package com.levelrin.plainen;
+package com.levelrin.chromescript;
 
 import com.levelrin.antlr.generated.MainGrammarLexer;
 import com.levelrin.antlr.generated.MainGrammarParser;
