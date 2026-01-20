@@ -1,5 +1,10 @@
 package com.levelrin.chromescript;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -11,24 +16,93 @@ import org.slf4j.LoggerFactory;
 
 public final class Main {
 
-    public static void main(final String... args) throws ParseException {
+    private static final Logger log = LoggerFactory.getLogger(Main.class);
+
+    public static void main(final String... args) throws ParseException, IOException {
         final Options options = new Options();
         options.addOption("h", "help", false, "Show help messages.")
             .addOption("v", "version", false, "Print the version.")
-            .addOption("q", "quiet", false, "Do not print debug logs.");
+            .addOption("q", "quiet", false, "Do not print debug logs.")
+            .addOption("i", "init", false, "Initialize the project in the current directory.");
         final CommandLineParser cmdParser = new DefaultParser();
         final CommandLine cmd = cmdParser.parse(options, args);
+        final Logger logger = LoggerFactory.getLogger(Main.class);
         if (cmd.hasOption('h')) {
             final HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("java -jar chrome-script-{app-version}-{java-version}.jar [options]", options);
         } else if (cmd.hasOption('v')) {
-            final Logger logger = LoggerFactory.getLogger(Main.class);
             if (logger.isInfoEnabled()) {
                 logger.info("chrome-script-0.0.1");
             }
+        } else if (cmd.hasOption('i')) {
+            Files.createDirectories(Paths.get("images/icons"));
+            Files.createDirectory(Paths.get("popup"));
+            Files.writeString(
+                Paths.get("popup/popup.html"),
+                """
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>Chrome Script Project</title>
+                </head>
+                <body>
+                <h1>Please modify this page.</h1>
+                <script src="popup.js"></script>
+                </body>
+                </html>
+                """,
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING
+            );
+            Files.writeString(
+                Paths.get("manifest.json"),
+                """
+                {
+                  "manifest_version":3,
+                  "version":"0.0.1",
+                  "name":"Chrome Script Project",
+                  "description":"Please modify this file.",
+                  "icons":{
+                    "16":"images/icons/icon16.png",
+                    "32":"images/icons/icon32.png",
+                    "48":"images/icons/icon48.png",
+                    "128":"images/icons/icon128.png"
+                  },
+                  "action":{
+                    "default_popup":"popup/popup.html"
+                  },
+                  "permissions": ["tabs", "scripting"],
+                  "host_permissions": [
+                    "http://*/*",
+                    "https://*/*"
+                  ]
+                }
+                """,
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING
+            );
+            Files.writeString(
+                Paths.get(".gitattributes"),
+                "* text=auto eol=lf\n",
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING
+            );
+            logger.info("A new Chrome extension project has been initialized!");
+            logger.info("Please modify the following files:");
+            logger.info(" - manifest.json");
+            logger.info(" - popup/popup.html");
+            logger.info("Also, please put icon files specified in the manifest.json.");
+            logger.info("Have a fun development journey :D");
         } else {
             if (cmd.hasOption('q')) {
                 System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "INFO");
+            }
+            final Path mainScript = Paths.get("main.chr");
+            if (Files.exists(mainScript)) {
+
+            } else {
+                logger.error("Could not find the file: main.chr");
             }
         }
     }
