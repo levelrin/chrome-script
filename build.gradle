@@ -22,6 +22,8 @@ sourceSets {
 
 dependencies {
     antlr 'org.antlr:antlr4:4.13.2'
+    implementation 'commons-cli:commons-cli:1.11.0'
+    implementation 'org.slf4j:slf4j-simple:2.0.17'
     testImplementation platform('org.junit:junit-bom:5.10.0')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -39,4 +41,16 @@ generateGrammarSource {
     ]
     // Since we will add the package declaration, we must put generated classes in the package folder.
     outputDirectory = file("$buildDir/generated-src/antlr/main/com/levelrin/antlr/generated")
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'com.levelrin.chromescript.Main'
+    }
+    // Fat jar configuration.
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    archiveFileName = "${project.name}-${project.version}-java${JavaVersion.current().toString()}.jar"
 }
