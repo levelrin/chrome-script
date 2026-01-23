@@ -53,11 +53,12 @@ public final class MainGrammarListener extends MainGrammarBaseListener {
 
     @Override
     public void enterOpenNewTab(final MainGrammarParser.OpenNewTabContext context) {
+        final int scriptIndex = this.scriptFiles.size();
         this.backgroundFile.append(
             String.format(
                 """
                 chrome.runtime.onMessage.addListener((message, __, ___) => {
-                    if (message.about === `newTab`) {
+                    if (message.about === `newTab%d`) {
                         chrome.tabs.create({url: message.url}).then((tab) => {
                             const listener = (tabId, changeInfo) => {
                                 if (tabId === tab.id && changeInfo.status === `complete`) {
@@ -73,10 +74,13 @@ public final class MainGrammarListener extends MainGrammarBaseListener {
                     }
                 });
                 """,
-                this.scriptFiles.size()
+                scriptIndex,
+                scriptIndex
             )
         );
-        this.currentFile.append("chrome.runtime.sendMessage({about: `newTab`, url: ")
+        this.currentFile.append("chrome.runtime.sendMessage({about: `newTab")
+            .append(scriptIndex)
+            .append("`, url: ")
             .append(context.STRING())
             .append(", script: `")
             .append(this.scriptFiles.size())
