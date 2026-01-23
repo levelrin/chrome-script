@@ -3,6 +3,10 @@ grammar MainGrammar;
 // This will create package statements for the generated Java files.
 @header {package com.levelrin.antlr.generated;}
 
+file
+    : sentences EOF
+    ;
+
 sentences
     : sentence*
     ;
