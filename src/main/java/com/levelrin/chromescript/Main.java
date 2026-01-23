@@ -37,6 +37,7 @@ public final class Main {
         } else if (cmd.hasOption('i')) {
             Files.createDirectories(Paths.get("images/icons"));
             Files.createDirectory(Paths.get("popup"));
+            Files.createDirectories(Paths.get("scripts"));
             Files.writeString(
                 Paths.get("popup/popup.html"),
                 """
@@ -76,7 +77,10 @@ public final class Main {
                   "host_permissions": [
                     "http://*/*",
                     "https://*/*"
-                  ]
+                  ],
+                  "background": {
+                    "service_worker": "background.js"
+                  }
                 }
                 """,
                 StandardOpenOption.CREATE,
