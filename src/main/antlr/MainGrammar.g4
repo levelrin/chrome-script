@@ -18,6 +18,8 @@ sentencesWithDom
 
 sentenceWithDom
     : elementById
+    | elementByTagName
+    | overwriteTextAndEnter
     | whenElementClicked
     | sentenceWithoutDom
     ;
@@ -44,6 +46,14 @@ whenElementClicked
 
 openNewTab
     : 'Open a new tab with the URL ' STRING ' and do the following: {' sentencesWithDom '}'
+    ;
+
+elementByTagName
+    : 'The ' NAME ' is the first element with the tag name ' STRING '.'
+    ;
+
+overwriteTextAndEnter
+    : 'Overwrite the text of ' NAME ' to ' STRING ' and press enter.'
     ;
 
 NAME: [a-z]([a-z0-9]|'_'[a-z0-9])*;

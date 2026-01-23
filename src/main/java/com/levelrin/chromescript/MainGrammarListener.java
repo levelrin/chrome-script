@@ -27,14 +27,14 @@ public final class MainGrammarListener extends MainGrammarBaseListener {
     @Override
     public void enterPrint(final MainGrammarParser.PrintContext context) {
         this.currentFile.append("console.log(")
-            .append(context.STRING().getText())
+            .append(context.STRING())
             .append(");");
     }
 
     @Override
     public void enterElementById(final MainGrammarParser.ElementByIdContext context) {
         this.currentFile.append("const ")
-            .append(context.NAME().getText())
+            .append(context.NAME())
             .append(" = document.getElementById(")
             .append(context.STRING())
             .append(");");
@@ -42,7 +42,7 @@ public final class MainGrammarListener extends MainGrammarBaseListener {
 
     @Override
     public void enterWhenElementClicked(final MainGrammarParser.WhenElementClickedContext context) {
-        this.currentFile.append(context.NAME().getText())
+        this.currentFile.append(context.NAME())
             .append(".addEventListener('click', () => {");
     }
 
@@ -94,6 +94,25 @@ public final class MainGrammarListener extends MainGrammarBaseListener {
     @Override
     public void exitOpenNewTab(final MainGrammarParser.OpenNewTabContext context) {
         this.currentFile = this.fileStack.pop();
+    }
+
+    @Override
+    public void enterElementByTagName(final MainGrammarParser.ElementByTagNameContext context) {
+        this.currentFile.append("const ")
+            .append(context.NAME())
+            .append(" = document.getElementsByTagName(")
+            .append(context.STRING())
+            .append(")[0];");
+    }
+
+    @Override
+    public void enterOverwriteTextAndEnter(final MainGrammarParser.OverwriteTextAndEnterContext context) {
+        this.currentFile.append(context.NAME())
+            .append(".value = ")
+            .append(context.STRING())
+            .append(";")
+            .append(context.NAME())
+            .append(".dispatchEvent(new KeyboardEvent(`keydown`, {key: `Enter`, code: `Enter`, keyCode: 13, which: 13, bubbles: true}));");
     }
 
     public StringBuilder backgroundFile() {
