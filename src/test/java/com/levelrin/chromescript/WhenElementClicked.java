@@ -26,10 +26,9 @@ final class WhenElementClicked {
         final CommonTokenStream tokens = new CommonTokenStream(lexer);
         final MainGrammarParser parser = new MainGrammarParser(tokens);
         final ParseTree tree = parser.file();
-        final StringBuilder output = new StringBuilder();
-        final MainGrammarListener listener = new MainGrammarListener(new ArrayList<>(Collections.singleton(output)));
+        final MainGrammarListener listener = new MainGrammarListener();
         ParseTreeWalker.DEFAULT.walk(listener, tree);
-        Assertions.assertEquals("button.addEventListener('click', () => {console.log(`Clicked!`);});", output.toString());
+        Assertions.assertEquals("button.addEventListener('click', () => {console.log(`Clicked!`);});", listener.popupFile().toString());
     }
 
 }

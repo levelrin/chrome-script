@@ -1,10 +1,17 @@
 package com.levelrin.chromescript;
 
+import com.levelrin.antlr.generated.MainGrammarLexer;
+import com.levelrin.antlr.generated.MainGrammarParser;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import org.antlr.v4.runtime.CharStream;
+import org.antlr.v4.runtime.CharStreams;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -104,7 +111,41 @@ public final class Main {
             }
             final Path mainScript = Paths.get("main.chr");
             if (Files.exists(mainScript)) {
-
+                final String code = Files.readString(mainScript);
+                final CharStream charStream = CharStreams.fromString(code);
+                final MainGrammarLexer lexer = new MainGrammarLexer(charStream);
+                final CommonTokenStream tokens = new CommonTokenStream(lexer);
+                final MainGrammarParser parser = new MainGrammarParser(tokens);
+                final ParseTree tree = parser.file();
+                final MainGrammarListener listener = new MainGrammarListener();
+                ParseTreeWalker.DEFAULT.walk(listener, tree);
+                Files.writeString(
+                    Paths.get("background.js"),
+                    listener.backgroundFile().toString(),
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING
+                );
+                Files.writeString(
+                    Paths.get("popup/popup.js"),
+                    String.format(
+                        """
+                        window.addEventListener("load", () => {
+                            %s
+                        });
+                        """,
+                        listener.popupFile()
+                    ),
+                    StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING
+                );
+                for (int index = 0; index < listener.scriptFiles().size(); index++) {
+                    Files.writeString(
+                        Paths.get(String.format("scripts/%d.js", index)),
+                        listener.scriptFiles().get(index).toString(),
+                        StandardOpenOption.CREATE,
+                        StandardOpenOption.TRUNCATE_EXISTING
+                    );
+                }
             } else {
                 logger.error("Could not find the file: main.chr");
             }

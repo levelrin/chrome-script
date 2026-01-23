@@ -4,17 +4,30 @@ grammar MainGrammar;
 @header {package com.levelrin.antlr.generated;}
 
 file
-    : sentences EOF
+    : popupLogic EOF
     ;
 
-sentences
-    : sentence*
+popupLogic
+    : 'On the pop-up, do the following: {' sentencesWithDom '}'
     ;
 
-sentence
-    : print
-    | elementById
+sentencesWithDom
+    // openNewTab must be the last sentcne because the rest of sentences will lose its effect when the new tab is opened.
+    : sentenceWithDom* openNewTab?
+    ;
+
+sentenceWithDom
+    : elementById
     | whenElementClicked
+    | sentenceWithoutDom
+    ;
+
+sentencesWithoutDom
+    : sentenceWithoutDom*
+    ;
+
+sentenceWithoutDom
+    : print
     ;
 
 print
@@ -26,7 +39,11 @@ elementById
     ;
 
 whenElementClicked
-    : 'When the ' NAME ' is clicked, do the following: {' sentences '}'
+    : 'When the ' NAME ' is clicked, do the following: {' sentencesWithDom '}'
+    ;
+
+openNewTab
+    : 'Open a new tab with the URL ' STRING ' and do the following: {' sentencesWithDom '}'
     ;
 
 NAME: [a-z]([a-z0-9]|'_'[a-z0-9])*;
